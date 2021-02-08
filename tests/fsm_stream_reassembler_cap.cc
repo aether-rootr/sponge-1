@@ -73,6 +73,28 @@ int main() {
             }
         }
 
+        {
+            ReassemblerTestHarness test{8};
+
+            test.execute(SubmitSegment{"a", 0});
+            test.execute(BytesAssembled(1));
+            test.execute(BytesAvailable("a"));
+            test.execute(NotAtEof{});
+
+            test.execute(SubmitSegment{"bc", 1});
+            test.execute(BytesAssembled(3));
+            test.execute(NotAtEof{});
+
+            test.execute(SubmitSegment{"ghX", 6}.with_eof(true));
+            test.execute(BytesAssembled(3));
+            test.execute(NotAtEof{});
+
+            test.execute(SubmitSegment{"cdefg", 2});
+            test.execute(BytesAssembled(9));
+            test.execute(BytesAvailable{"bcdefghX"});
+            test.execute(AtEof{});
+        }
+
     } catch (const exception &e) {
         cerr << "Exception: " << e.what() << endl;
         return EXIT_FAILURE;
